@@ -1,8 +1,49 @@
+import { ChangeEvent, useState } from 'react';
 import logo from './assets/logo-nlw-expert.svg';
 import { NewNoteCard } from './components/new-note-card';
 import { NoteCard } from './components/note-card';
 
+interface Note {
+  id: string
+  date: Date
+  content: string
+}
+
 export function App() {
+  const [search, setSearch] = useState('')
+
+  const [notes, setNotes] = useState<Note[]>(() => {
+    const notesOnStorage = localStorage.getItem('notes')
+
+    if (notesOnStorage) {
+      return JSON.parse(notesOnStorage)
+    }
+    
+    return []
+  });
+
+  function onNoteCreated(content: string) {
+    const newNote = {
+      id: crypto.randomUUID(),
+      date: new Date(),
+      content,
+    }
+    
+    const notesArray = [newNote, ...notes]
+
+    setNotes(notesArray)
+
+    localStorage.setItem('notes', JSON.stringify(notesArray))
+  }
+
+  function handleSearch(event: ChangeEvent<HTMLInputElement> ) {
+    const query = event.target.value
+
+    setSearch(query)
+  }
+
+  const filteredNotes = search !== '' ? notes.filter(note => note.content.toLowerCase().includes(search)) : notes
+
   return (
     <div className='mx-auto max-w-6xl my-12 space-y-6 '>
       <img src={logo} alt="NLW Expert" />
@@ -11,7 +52,8 @@ export function App() {
         <input 
           type="text" 
           placeholder='Busque por suas notas...'
-          className='w-full text-3xl font-semibold tracking-tight placeholder:text-slate-300 bg-transparent outline-none'  
+          className='w-full text-3xl font-semibold tracking-tight placeholder:text-slate-300 bg-transparent outline-none'
+          onChange={handleSearch}  
         />
       </form>
       
@@ -19,12 +61,11 @@ export function App() {
 
       <div className='grid grid-cols-3 auto-rows-[250px] gap-6'>
 
-        <NewNoteCard />
+        <NewNoteCard onNoteCreated={onNoteCreated} />
         
-        <NoteCard note={{
-          date: new Date(),
-          content: "No app do NLW vamos criar um layout incrível, assim podemos entregar a melhor experiência para a comunidade. Na aplicação React vamos criar um projeto que permite o usuário salvar notas em texto ou áudio."
-        }}/>
+        {filteredNotes.map(note => {
+          return <NoteCard key={note.id} note={note} />
+        })}
       </div>
     </div>
   )
