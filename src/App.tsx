@@ -21,14 +21,11 @@ export function App() {
 
         <NewNoteCard />
         
-        <NoteCard />
-        <NoteCard />
-        <NoteCard />
-        <NoteCard />
-        <NoteCard />
-
+        <NoteCard note={{
+          date: new Date(),
+          content: "No app do NLW vamos criar um layout incrível, assim podemos entregar a melhor experiência para a comunidade. Na aplicação React vamos criar um projeto que permite o usuário salvar notas em texto ou áudio."
+        }}/>
       </div>
-
     </div>
   )
 }
